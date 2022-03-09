@@ -23,6 +23,9 @@ schedule* createSchedule( ) {
         ps->backQueue = createQueue();
     }
 
+    /*****TODO**************************
+    Remember to free this at some point!
+    ************************************/
     return ps;
 }
 
@@ -36,7 +39,13 @@ schedule* createSchedule( ) {
 bool isScheduleUnfinished( schedule *ps ) {
     /* TODO: check if there are any process still in a queue.  Return TRUE if there is. */
     
-    return false; /* TODO: Replace with your return value */
+    if ( isEmpty(ps->foreQueue) && isEmpty(ps->backQueue)){
+        return false;
+    }else{
+        return true;
+    }
+
+    // return false; /* TODO: Replace with your return value */
 }
 
 /* addNewProcessToSchedule
@@ -50,7 +59,24 @@ void addNewProcessToSchedule( schedule *ps, char *processName, priority p ) {
     /* TODO: complete this function.
     The function "initializeProcessData" in processSimulator.c will be useful in completing this. */
 
-    free( processName ); /* TODO: This is to prevent a memory leak but you should remove it once you create a process to put processName into */
+    processData *p_intialData = initializeProcessData(processName);
+    
+    //Create process struct object
+    process *newProcess = (process *) malloc(sizeof(process));
+
+    newProcess->name = processName;
+    newProcess->priority = p;
+    newProcess->data = p_intialData;
+
+    //add process to foreground queue in schedule or
+    //the background queue in schedule
+    if (newProcess->priority == FOREGROUND){
+        enqueue(ps->foreQueue, newProcess);
+    }else if (newProcess->priority == BACKGROUND){
+        enqueue(ps->backQueue, newProcess);
+    }
+        
+    // free( processName ); /* TODO: This is to prevent a memory leak but you should remove it once you create a process to put processName into */
 }
 
 /* runNextProcessInSchedule
