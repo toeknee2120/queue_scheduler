@@ -26,7 +26,7 @@ typedef struct process
     //TODO: Put the data for your process here!
 
    char *name;
-   struct processData data;
+   processData *data;
    priority priority;
    int stepNumber;  
 
