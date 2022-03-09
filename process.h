@@ -4,7 +4,11 @@
 typedef enum priority { FOREGROUND, BACKGROUND } priority;
 
 /* DO NOT directly access any data inside of a processData struct */
-typedef struct processData{ int heap[  30        ]; char       PN21[       21];char TLN        [4  ];}   processData ;
+typedef struct processData{ 
+    int heap[  30        ]; 
+    char PN21[       21];
+    char TLN        [4  ];
+}processData ;
 
 /* struct process (only accessed in student written code)
  *
@@ -20,7 +24,11 @@ typedef struct processData{ int heap[  30        ]; char       PN21[       21];c
 typedef struct process
 {
     //TODO: Put the data for your process here!
-    
+
+   char *name;
+   struct processData data;
+   priority priority;
+   int stepNumber;  
 
 }  process;
 
