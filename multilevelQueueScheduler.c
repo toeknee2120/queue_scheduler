@@ -15,8 +15,15 @@ static const int FOREGROUND_QUEUE_STEPS = 5;
  */
 schedule* createSchedule( ) {
     /* TODO: initialize data in schedule */
+    schedule *ps = (schedule *) malloc( sizeof(schedule));
 
-    return NULL; /* TODO: Replace with your return value */
+    if( ps!=NULL )
+    {
+        ps->foreQueue = createQueue();
+        ps->backQueue = createQueue();
+    }
+
+    return ps;
 }
 
 /* isScheduleUnfinished
