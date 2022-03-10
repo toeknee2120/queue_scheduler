@@ -126,13 +126,29 @@ char* runNextProcessInSchedule( schedule *ps ) {
     */
    while ( !isEmpty(ps->foreQueue) ){
         char **sysCall;
-        bool returned;
+        bool complete;
         processData* pData = (processData*)malloc(sizeof(processData));
+        process *removedProcess = (process *) malloc(sizeof(process));
 
         pData = ps->foreQueue->qFront->qt->data;
 
         loadProcessData(pData);
-        returned = runProcess(ps->foreQueue->qFront->qt->name, sysCall, &pData->heap[1]);
+        complete = runProcess(ps->foreQueue->qFront->qt->name, &ret, &pData->heap[1]);
+        
+        if (complete){
+            //remove process
+            removedProcess = dequeue(ps->foreQueue);
+            freeProcessData();
+            free(removedProcess);
+
+        }else{
+            //move to back of queue
+            removedProcess = dequeue(ps->foreQueue->qFront->qt);
+            enqueue(ps->backQueue,removedProcess);
+            freeProcessData();
+            free(removedProcess);
+        }
+
 
     }
 
