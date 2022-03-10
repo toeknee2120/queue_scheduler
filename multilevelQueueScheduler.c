@@ -107,6 +107,44 @@ char* runNextProcessInSchedule( schedule *ps ) {
     /* your call to runProcess will look something like this: */
     // bool b = runProcess( /* name of process */, &ret, &numSteps );
     
+
+    /*
+    while there is a FOREGROUND process, run it
+        - run process for 5 steps max
+        - move process to back of the FOREGROUND queue
+        - if process complete, remove from queue
+            -free process data
+            -free process
+    if no FOREGROUND processes, run all background processes
+        - run process until complete or promoted
+        - if process complete, remove from queue
+            -free process data
+            -free process
+
+    if 50 steps pass, move any BACKGROUND processes to end of FOREGROUND queue
+
+    */
+   while ( !isEmpty(ps->foreQueue) ){
+       int numOfSteps;
+       char **sysCall;
+       bool returned;
+       processData* pData = (processData*)malloc(sizeof(processData));
+
+       pData = ps->foreQueue->qFront->qt->data;
+       numOfSteps = ps->foreQueue->qFront->qt->stepNumber;
+
+       loadProcessData(pData);
+       
+       returned = runProcess(ps->foreQueue->qFront->qt->name, sysCall, &numOfSteps);
+
+   }
+
+
+
+
+
+
+
     return ret; /* TODO: be sure to store the value returned by runProcess in ret */
 }
 

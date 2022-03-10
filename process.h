@@ -28,7 +28,7 @@ typedef struct process
    char *name;
    processData *data;
    priority priority;
-   int stepNumber;  
+   int stepsUntilDemoted;  
 
 }  process;
 
