@@ -125,19 +125,16 @@ char* runNextProcessInSchedule( schedule *ps ) {
 
     */
    while ( !isEmpty(ps->foreQueue) ){
-       int numOfSteps;
-       char **sysCall;
-       bool returned;
-       processData* pData = (processData*)malloc(sizeof(processData));
+        char **sysCall;
+        bool returned;
+        processData* pData = (processData*)malloc(sizeof(processData));
 
-       pData = ps->foreQueue->qFront->qt->data;
-       numOfSteps = ps->foreQueue->qFront->qt->stepNumber;
+        pData = ps->foreQueue->qFront->qt->data;
 
-       loadProcessData(pData);
-       
-       returned = runProcess(ps->foreQueue->qFront->qt->name, sysCall, &numOfSteps);
+        loadProcessData(pData);
+        returned = runProcess(ps->foreQueue->qFront->qt->name, sysCall, &pData->heap[1]);
 
-   }
+    }
 
 
 
