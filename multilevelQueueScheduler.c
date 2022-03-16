@@ -221,7 +221,7 @@ char* runNextProcessInSchedule( schedule *ps ) {
         isComplete = false;
 
         // processData* pData = (processData*)malloc(sizeof(processData));
-        process *removedProcess = (process *) malloc(sizeof(process));
+        // process *removedProcess = (process *) malloc(sizeof(process));
 
         // pData = ps->backQueue->qFront->qt->data;
         loadProcessData(ps->backQueue->qFront->qt->data);
@@ -249,8 +249,7 @@ char* runNextProcessInSchedule( schedule *ps ) {
                 reset();
                 
                 promoteProcess(ps->backQueue->qFront->qt->name, ps->backQueue->qFront->qt->data);
-                removedProcess = dequeue(ps->backQueue);
-                enqueue(ps->foreQueue, removedProcess);
+                enqueue(ps->foreQueue, dequeue(ps->backQueue));
                 
                 break;
             }
@@ -260,10 +259,10 @@ char* runNextProcessInSchedule( schedule *ps ) {
                 printf("%s is complete. Removing from backqueue.\n", ps->backQueue->qFront->qt->name);
                 reset();
 
-                removedProcess = dequeue(ps->backQueue);
+                
                 freeProcessData();
-                free(removedProcess);
-                removedProcess = NULL;
+                free(dequeue(ps->backQueue));
+                
             }
 
         }
