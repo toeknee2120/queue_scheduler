@@ -17,11 +17,30 @@ priority getPriority(char* processName);
 int main( int argc, char *argv[] )
 {
     int i = 0;
+
+    /* original test data */
     char *testData[] = {"F|NEW|00|12|10|04|00",
                         "B|LNG|00|10|07|03|00",
                         "F|SMP|00|30|08|31|00",
                         "F|RPD|00|09|03|32|00",
                         "F|VID|00|40|99|01|00"};
+    
+    // short background process
+    /* char *testData[] = {"F|NEW|00|12|10|04|00",
+                        "B|LNG|00|03|07|03|00",
+                        "F|SMP|00|30|08|31|00",
+                        "F|RPD|00|09|03|32|00",
+                        "F|VID|00|40|99|01|00"};
+    */
+
+    /* long background process */
+    /* char *testData[] = {"F|NEW|00|12|10|04|00",
+                        "B|ONE|00|73|07|03|00",
+                        "B|LNG|00|03|07|03|00",
+                        "F|SMP|00|30|08|31|00",
+                        "F|RPD|00|09|03|32|00",
+                        "F|VID|00|40|99|01|00"};
+    */
 
     schedule *ps = createSchedule();
     char *name;
