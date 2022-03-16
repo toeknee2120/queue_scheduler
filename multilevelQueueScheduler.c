@@ -88,36 +88,58 @@ void addNewProcessToSchedule( schedule *ps, char *processName, priority p ) {
  * Call "runProcess" to attempt to run the process.  You do not need to print anything.
  * You should return the string "runProcess" returns.  You do not need to use/modify this string in any way.
  */
+void red();
+void yellow();
+void reset();
+
+void cyan(){
+    printf("\033[0;36m");
+}
+void red () {
+  printf("\033[1;31m");
+}
+void yellow () {
+  printf("\033[1;33m");
+}
+void reset () {
+  printf("\033[0m");
+}
 
 void printSchedule(schedule *ps){
+    yellow();
+
     if (isScheduleUnfinished(ps)){
+        LLNode* currentNode = (LLNode*)malloc(sizeof(LLNode));
+
         if ( (!isEmpty(ps->foreQueue))){
             
-            LLNode* currentNode = (LLNode*)malloc(sizeof(LLNode));
             currentNode = ps->foreQueue->qFront;
             printf("\n---Stuff in the FOREGROUND ---\n");
-            printf("%s...%d\n", currentNode->qt->name, currentNode->qt->data->heap[11]);
+            printf("%s...\n", currentNode->qt->name);
             
-            while(!currentNode->pNext == NULL){
+            while(!(currentNode->pNext == NULL)){
                 currentNode = currentNode->pNext;
-                printf("%s...%d\n", currentNode->qt->name, currentNode->qt->data->heap[11]);
-            }
+                printf("%s...\n", currentNode->qt->name);            }
         }
         
         if ( (!isEmpty(ps->backQueue))){
-            LLNode* currentNode = (LLNode*)malloc(sizeof(LLNode));
+        
             currentNode = ps->backQueue->qFront;
             printf("---Stuff in the BACKGROUND ---\n");
             printf("%s\n", currentNode->qt->name);
             
-            while(!currentNode->pNext == NULL){
+            while(!(currentNode->pNext == NULL)){
                 currentNode = currentNode->pNext;
                 printf("%s\n", currentNode->qt->name);
             }        
         }
         
         printf("-------------------------\n\n");
+        
+        free(currentNode);
     }
+    reset();
+
 }
 
 char* runNextProcessInSchedule( schedule *ps ) {
@@ -125,112 +147,133 @@ char* runNextProcessInSchedule( schedule *ps ) {
     The function "runProcess", "promoteProcess", "loadProcessData", and "freeProcessData"
     in processSimulator.c will be useful in completing this.
     You may want to write a helper function to handle promotion */
-    //int numSteps = 0;
-    
-    /* TODO: Delete the following printf once you get the infinite loop fixed */
-    // printf("IMPORTANT NOTE: There will be an intinite loop in runNextProcessInSchedule if you get isScheduleUnfinished and addNewProcessToSchedule working correctly\n"); 
-    /* TODO: Uncomment the code below to dequeue elements from the two Queues and break your code out of the infinite loop
-    if( !isEmpty(ps->foreQueue) )
-        dequeue(ps->foreQueue);
-    else if( !isEmpty(ps->backQueue) )
-        dequeue(ps->backQueue);
-    */
-    
-    /* your call to runProcess will look something like this: */
-    // bool b = runProcess( /* name of process */, &ret, &numSteps );
-    
-
-  
+     
     char *ret = NULL;
-    int stepsCompleted;
-    char **ppSystemCall;
-    int *pNumSteps;
+    int maxSteps;
+    bool isComplete;
 
-    ppSystemCall = &ret;
-    pNumSteps = &stepsCompleted;
-
-    while (isScheduleUnfinished){
         
-    
-       while ( !isEmpty(ps->foreQueue) ){
-            bool complete;
-            processData* pData = (processData*)malloc(sizeof(processData));
-            process *removedProcess = (process *) malloc(sizeof(process));
-    
-            pData = ps->foreQueue->qFront->qt->data;
-            loadProcessData(pData);
-    
-            stepsCompleted = 5 /*pData->heap[1]*/;
-           
-            complete = runProcess(ps->foreQueue->qFront->qt->name, ppSystemCall, pNumSteps);
-            
-            if (complete){
-                //remove process
-                removedProcess = dequeue(ps->foreQueue);
-                freeProcessData();
-                free(removedProcess);
-            }else{
-                //move to back of queue
-                removedProcess = dequeue(ps->foreQueue);
-                enqueue(ps->foreQueue,removedProcess); 
-            }
-    
-           printSchedule(ps);
-    
+    /*
+        while the forequeue (FOREGROUND) is NOT empty, then we need to
+        run whatever processes are in it
+    */
+    while ( !isEmpty(ps->foreQueue) ){
+
+        isComplete = false;
+        
+        // malloc some space for the process data and the process we are about to use        
+        processData* pData = (processData*)malloc(sizeof(processData));
+        process *removedProcess = (process *) malloc(sizeof(process));
+
+        // get a pointer to the process data at the front of the queue, and pass it
+        // to loadProcessData() to be loaded
+        pData = ps->foreQueue->qFront->qt->data;
+        loadProcessData(pData);
+
+        // set the max number of steps a FOREGROUND process can run to 50, per the
+        // instructions
+        maxSteps = FOREGROUND_QUEUE_STEPS;
+        
+        /* 
+            pass the process at the front of the forequeue (FOREGROUND) to the
+            runProcess() function, as well as memory addresses to store 
+            - any systemcall strings that might be started mid-process -> &ret
+            - the number of steps run prior to finishing or a system call-> &maxSteps 
+
+            since the runProcess() function returns a bool as to whether or not the
+            process completed, we will store that into isComplete
+        */
+
+        isComplete = runProcess(ps->foreQueue->qFront->qt->name, &ret, &maxSteps);
+        
+        /*
+            if the process completed, we need to remove it from the queue and free
+            anything related to it
+
+            if the process is NOT complete, we need to move it to the back of
+            the forequeue (FOREGROUND)
+        */
+        if (isComplete){
+            cyan();
+            printf("%s is complete. Removing from forqueue.\n", ps->foreQueue->qFront->qt->name);
+            reset();
+
+            removedProcess = dequeue(ps->foreQueue); 
+            freeProcessData();
+            free(removedProcess);
+        }else{
+            cyan();
+            printf("%s is not complete. Moving to back of forqueue.\n", ps->foreQueue->qFront->qt->name);
+            reset();
+
+            removedProcess = dequeue(ps->foreQueue);
+            enqueue(ps->foreQueue,removedProcess); 
         }
 
+        // printSchedule(ps);
+    }// end of forequeue while loop
+
+    
+    while ( !isEmpty(ps->backQueue) && 
+            isEmpty(ps->foreQueue) 
+        ){
+
+        isComplete = false;
+
+        processData* pData = (processData*)malloc(sizeof(processData));
+        process *removedProcess = (process *) malloc(sizeof(process));
+
+        pData = ps->backQueue->qFront->qt->data;
+        loadProcessData(pData);
+
+        int current_time = getCurrentTimeStep();
+        int processSteps = pData->heap[1];
+        int timeInQueue = current_time - ps->backQueue->qFront->qt->timeInserted;
         
-        while ( !isEmpty(ps->backQueue) && 
-                isEmpty(ps->foreQueue) 
-            ){
-            bool complete;
-            processData* pData = (processData*)malloc(sizeof(processData));
-            process *removedProcess = (process *) malloc(sizeof(process));
-    
-            pData = ps->backQueue->qFront->qt->data;
-            loadProcessData(pData);
+        
+        if (timeInQueue + processSteps >= STEPS_TO_PROMOTION )
+            maxSteps = STEPS_TO_PROMOTION - timeInQueue;
+            
 
-            //////////////////////
-            int current_time = getCurrentTimeStep();
-            int processSteps = pData->heap[1];
-            int timeInQueue = current_time - ps->backQueue->qFront->qt->timeInserted;
+        // maxSteps = processSteps;
+
+        while (!isComplete){
             
-            
-            if (timeInQueue + processSteps >= STEPS_TO_PROMOTION )
-                processSteps = STEPS_TO_PROMOTION - timeInQueue;
+            isComplete = runProcess(ps->backQueue->qFront->qt->name, &ret, &maxSteps);
+            current_time = getCurrentTimeStep();
+            timeInQueue = current_time - ps->backQueue->qFront->qt->timeInserted;
+
+            if ( (!isComplete) && (timeInQueue >= STEPS_TO_PROMOTION)){
+                cyan();
+                printf("%s is not complete, but it's been in the backqueue too long. Must promote.\n", ps->backQueue->qFront->qt->name);
+                reset();
                 
+                promoteProcess(ps->backQueue->qFront->qt->name, pData);
+                removedProcess = dequeue(ps->backQueue);
+                enqueue(ps->foreQueue, removedProcess);
+                
+                break;
+            }
 
-            stepsCompleted = processSteps;
-    
-            complete = false;
-            while (!complete){
-                complete = runProcess(ps->backQueue->qFront->qt->name, ppSystemCall, pNumSteps);
-                current_time = getCurrentTimeStep();
-                timeInQueue = current_time - ps->backQueue->qFront->qt->timeInserted;
+            if ( isComplete ){
+                cyan();
+                printf("%s is complete. Removing from backqueue.\n", ps->backQueue->qFront->qt->name);
+                reset();
 
-                if ( (!complete) && (timeInQueue >=50)){
-                    promoteProcess(ps->backQueue->qFront->qt->name, pData);
-                    removedProcess = dequeue(ps->backQueue);
-                    enqueue(ps->foreQueue, removedProcess);
-                    break;
-                }
+                removedProcess = dequeue(ps->backQueue);
                 freeProcessData();
                 free(removedProcess);
+                removedProcess = NULL;
             }
-            //only free when complete
-            
-            printSchedule(ps);
-    
-        }//while (!isEmpty(ps->backQueue))
+
+        }
+        //only free when complete
         
-    }//while (isScheduleUnfinished)
+        // printSchedule(ps);
 
-
-
-
-
-    freeSchedule(ps);
-
+    }//while (!isEmpty(ps->backQueue))
+    
+        
     return ret; /* TODO: be sure to store the value returned by runProcess in ret */
 }
 
