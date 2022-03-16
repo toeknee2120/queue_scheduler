@@ -220,14 +220,14 @@ char* runNextProcessInSchedule( schedule *ps ) {
 
         isComplete = false;
 
-        processData* pData = (processData*)malloc(sizeof(processData));
+        // processData* pData = (processData*)malloc(sizeof(processData));
         process *removedProcess = (process *) malloc(sizeof(process));
 
-        pData = ps->backQueue->qFront->qt->data;
-        loadProcessData(pData);
+        // pData = ps->backQueue->qFront->qt->data;
+        loadProcessData(ps->backQueue->qFront->qt->data);
 
         int current_time = getCurrentTimeStep();
-        int processSteps = pData->heap[1];
+        int processSteps = ps->backQueue->qFront->qt->data->heap[1];
         int timeInQueue = current_time - ps->backQueue->qFront->qt->timeInserted;
         
         
@@ -248,7 +248,7 @@ char* runNextProcessInSchedule( schedule *ps ) {
                 printf("%s is not complete, but it's been in the backqueue too long. Must promote.\n", ps->backQueue->qFront->qt->name);
                 reset();
                 
-                promoteProcess(ps->backQueue->qFront->qt->name, pData);
+                promoteProcess(ps->backQueue->qFront->qt->name, ps->backQueue->qFront->qt->data);
                 removedProcess = dequeue(ps->backQueue);
                 enqueue(ps->foreQueue, removedProcess);
                 
