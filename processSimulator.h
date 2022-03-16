@@ -14,4 +14,6 @@ void loadProcessData( processData *pData );
 int max( int a, int b );
 int powInt( int a, int b );
 
+int getCurrentTimeStep();
+
 #endif

@@ -15,6 +15,10 @@ static int time = 1;
 static int nameNum = 0;
 static processData *RAM = NULL;
 
+int getCurrentTimeStep(){
+    return time;
+}
+
 /* initializeProcessData
  * input: the process name
  * output: initialized data for the process

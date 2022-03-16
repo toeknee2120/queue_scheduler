@@ -28,8 +28,9 @@ typedef struct process
    char *name;
    processData *data;
    priority priority;
-   int stepsRemaining;
-   int stepCount;  
+   // int stepsRemaining;
+   // int stepCount;  
+    int timeInserted;
 
 }  process;
 
